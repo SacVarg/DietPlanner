@@ -1,5 +1,5 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { RECIPE_MAP, computeRecipeNutrition } from "@/lib/data/recipes";
+import { RECIPE_MAP, computeRecipeNutrition, type Recipe } from "@/lib/data/recipes";
 import { FOOD_MAP } from "@/lib/data/foods";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Clock, Flame, ChefHat, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/recipes/$id")({
   head: ({ params }) => ({ meta: [{ title: `${RECIPE_MAP[params.id]?.name ?? "Recipe"} — Kerala Diet Planner` }] }),
-  loader: ({ params }) => {
+  loader: ({ params }): Recipe => {
     const r = RECIPE_MAP[params.id];
     if (!r) throw notFound();
     return r;
