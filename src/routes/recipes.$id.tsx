@@ -21,7 +21,7 @@ export const Route = createFileRoute("/recipes/$id")({
 });
 
 function RecipeDetail() {
-  const r = Route.useLoaderData();
+  const r = Route.useLoaderData() as Recipe;
   const n = computeRecipeNutrition(r);
 
   return (
