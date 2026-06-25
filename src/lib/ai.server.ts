@@ -2,14 +2,18 @@ import { createServerFn } from "@tanstack/react-start";
 import { calcTargets } from "@/lib/recommend";
 import type { Profile } from "@/lib/store";
 
-// Note: This MUST be saved exactly as "src/lib/ai.server.ts"
 export const generateAiPlanFn = createServerFn({ method: "POST" })
   .validator((data: { profile: Profile }) => data)
   .handler(async (ctx) => {
     const { profile } = ctx.data;
     const targets = calcTargets(profile);
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Safely checks standard process.env, Cloudflare globalThis, and Vite import.meta
+    const apiKey = 
+      process.env.GEMINI_API_KEY || 
+      (typeof globalThis !== 'undefined' && (globalThis as any).GEMINI_API_KEY) ||
+      (import.meta as any).env?.GEMINI_API_KEY;
+
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY is missing from environment variables.");
     }
