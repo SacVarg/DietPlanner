@@ -4,11 +4,9 @@ import type { Profile } from "@/lib/store";
 
 export const generateAiPlanFn = createServerFn({ method: "POST" })
   .handler(async (ctx) => {
-    // We cast the data type directly here instead of using .validator()
     const { profile } = ctx.data as { profile: Profile };
     const targets = calcTargets(profile);
 
-    // Safely checks standard process.env, Cloudflare globalThis, and Vite import.meta
     const apiKey = 
       process.env.GEMINI_API_KEY || 
       (typeof globalThis !== 'undefined' && (globalThis as any).GEMINI_API_KEY) ||
@@ -61,14 +59,20 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
         }
       );
 
+      // THIS IS THE CRITICAL CHANGE: Printing the exact error from Google
       if (!response.ok) {
-        throw new Error("Failed to fetch plan from Gemini AI.");
+        const errorText = await response.text();
+        console.error("--- RAW GEMINI API ERROR ---");
+        console.error(errorText);
+        console.error("----------------------------");
+        throw new Error(`Google API rejected the request with status: ${response.status}`);
       }
 
       const data = await response.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
       
       if (!text) {
+        console.error("Empty AI Response:", JSON.stringify(data));
         throw new Error("Received empty response from AI.");
       }
 
@@ -77,6 +81,6 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
 
     } catch (error) {
       console.error("AI Generation Error:", error);
-      throw new Error("Failed to generate AI meal plan.");
+      throw error;
     }
   });
