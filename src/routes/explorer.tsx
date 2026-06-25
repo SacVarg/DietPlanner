@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { FOODS } from "@/lib/data/foods";
-import { RECIPES, computeRecipeNutrition } from "@/lib/data/recipes";
+import { RECIPES, computeRecipeNutrition, type CuisineId } from "@/lib/data/recipes";
+import { CUISINES, CUISINE_LABELS } from "@/lib/data/cuisines";
 import { AppShell } from "@/components/app-shell";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
@@ -14,31 +15,45 @@ export const Route = createFileRoute("/explorer")({
 function Explorer() {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<"foods" | "recipes">("recipes");
+  const [cuisine, setCuisine] = useState<"all" | CuisineId>("all");
 
   const filteredFoods = useMemo(() => {
     const s = q.trim().toLowerCase();
     if (!s) return FOODS;
-    return FOODS.filter((f) => f.name.toLowerCase().includes(s) || f.localName.toLowerCase().includes(s));
+    return FOODS.filter(
+      (f) => f.name.toLowerCase().includes(s) || f.localName.toLowerCase().includes(s),
+    );
   }, [q]);
 
   const filteredRecipes = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return RECIPES;
-    return RECIPES.filter((r) => r.name.toLowerCase().includes(s) || r.localName.toLowerCase().includes(s));
-  }, [q]);
+    const cuisineFiltered =
+      cuisine === "all" ? RECIPES : RECIPES.filter((r) => r.cuisine === cuisine);
+    if (!s) return cuisineFiltered;
+    return cuisineFiltered.filter(
+      (r) => r.name.toLowerCase().includes(s) || r.localName.toLowerCase().includes(s),
+    );
+  }, [q, cuisine]);
 
   return (
     <AppShell>
       <div className="space-y-5">
         <div>
           <h1 className="text-2xl font-bold">Food explorer</h1>
-          <p className="text-sm text-muted-foreground">Browse Kerala foods and recipes with nutrition info.</p>
+          <p className="text-sm text-muted-foreground">
+            Browse Kerala foods and recipes with nutrition info.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative max-w-sm flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input className="pl-9" placeholder="Search foods or recipes…" value={q} onChange={(e) => setQ(e.target.value)} />
+            <Input
+              className="pl-9"
+              placeholder="Search foods or recipes…"
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+            />
           </div>
           <div className="inline-flex rounded-full border border-border bg-card p-1 text-sm">
             {(["recipes", "foods"] as const).map((t) => (
@@ -47,7 +62,9 @@ function Explorer() {
                 onClick={() => setTab(t)}
                 className={
                   "rounded-full px-3 py-1 capitalize " +
-                  (tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")
+                  (tab === t
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:text-foreground")
                 }
               >
                 {t}
@@ -56,17 +73,60 @@ function Explorer() {
           </div>
         </div>
 
+        {tab === "recipes" && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setCuisine("all")}
+              className={
+                (cuisine === "all"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card text-muted-foreground") + " rounded-full border px-3 py-1 text-xs"
+              }
+            >
+              All cuisines
+            </button>
+            {CUISINES.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setCuisine(c.id)}
+                className={
+                  (cuisine === c.id
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-card text-muted-foreground") + " rounded-full border px-3 py-1 text-xs"
+                }
+              >
+                {c.label}
+              </button>
+            ))}
+          </div>
+        )}
+
         {tab === "recipes" ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {filteredRecipes.map((r) => {
               const n = computeRecipeNutrition(r);
               return (
-                <Link to="/recipes/$id" params={{ id: r.id }} key={r.id} className="card-surface group p-4 transition-colors hover:bg-muted/40">
+                <Link
+                  to="/recipes/$id"
+                  params={{ id: r.id }}
+                  key={r.id}
+                  className="card-surface group p-4 transition-colors hover:bg-muted/40"
+                >
                   <div className="text-xs text-muted-foreground">{r.localName}</div>
-                  <h3 className="mt-1 text-base font-semibold group-hover:text-primary">{r.name}</h3>
+                  <h3 className="mt-1 text-base font-semibold group-hover:text-primary">
+                    {r.name}
+                  </h3>
                   <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
+                    <span className="rounded-full bg-secondary/10 px-2 py-0.5">
+                      {CUISINE_LABELS[r.cuisine]}
+                    </span>
                     {r.meal.map((m) => (
-                      <span key={m} className="rounded-full bg-primary-soft px-2 py-0.5 capitalize text-accent-foreground">{m}</span>
+                      <span
+                        key={m}
+                        className="rounded-full bg-primary-soft px-2 py-0.5 capitalize text-accent-foreground"
+                      >
+                        {m}
+                      </span>
                     ))}
                     <span className="rounded-full bg-muted px-2 py-0.5 capitalize">{r.cost}</span>
                   </div>
