@@ -31,7 +31,6 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         with:
-          model: openrouter/deepseek/deepseek-v4-flash:free
-
+          model: ~deepseek/deepseek-v4-flash:free
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
