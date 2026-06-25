@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, Clock, Flame, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-// Note: This MUST be saved exactly as "src/routes/planner.tsx"
 export const Route = createFileRoute("/planner")({
   head: () => ({ meta: [{ title: "Daily Planner — Kerala Diet Planner" }] }),
   component: Planner,
@@ -27,10 +26,18 @@ function Planner() {
   const setAiPlan = useApp((s) => s.setAiPlan);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
 
-  if (!profile) return <Navigate to="/profile" />;
-  
-  const plan = useMemo(() => generateDailyPlan(profile, seed), [profile, seed]);
-  const templates = useMemo(() => recommendTemplates(profile).slice(0, 3), [profile]);
+  // SAFE HOOKS: Run before return to prevent React crashes
+  const plan = useMemo(() => {
+    if (!profile) return null;
+    return generateDailyPlan(profile, seed);
+  }, [profile, seed]);
+
+  const templates = useMemo(() => {
+    if (!profile) return [];
+    return recommendTemplates(profile).slice(0, 3);
+  }, [profile]);
+
+  if (!profile || !plan) return <Navigate to="/profile" />;
 
   const logStatic = (r: Recipe, meal: "breakfast" | "lunch" | "dinner") => {
     const n = computeRecipeNutrition(r);
@@ -71,7 +78,7 @@ function Planner() {
       toast.success("AI generated a perfect Kerala meal plan for you!");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to generate AI plan. Please check your API Key settings.");
+      toast.error("Failed to generate AI plan. Check Cloudflare API key settings.");
     } finally {
       setIsGeneratingAi(false);
     }
