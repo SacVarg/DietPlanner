@@ -31,7 +31,7 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         with:
-          model: qwen/qwen3-coder:free
+          model: openrouter/qwen/qwen3-coder:free
 
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
