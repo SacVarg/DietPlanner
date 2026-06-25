@@ -17,7 +17,7 @@ export type Profile = {
 export type JournalEntry = {
   id: string;
   date: string;
-  meal: "breakfast" | "lunch" | "dinner" | "snack";
+  meal: "breakfast" | "lunch" | "dinner" | "snack" | "dessert";
   recipeId?: string;
   customName?: string;
   kcal: number;
@@ -42,6 +42,7 @@ export type AiPlan = {
   breakfast: AiMeal;
   lunch: AiMeal;
   dinner: AiMeal;
+  dessert?: AiMeal;
 };
 // -----------------------
 
@@ -56,7 +57,7 @@ type State = {
   weeklySeed: number;
   regenerateDaily: () => void;
   regenerateWeekly: () => void;
-  
+
   // --- NEW V3 AI STATE ---
   aiPlan: AiPlan | null;
   setAiPlan: (plan: AiPlan | null) => void;
@@ -77,7 +78,7 @@ export const useApp = create<State>()(
       weeklySeed: 1,
       regenerateDaily: () => set({ dailySeed: Date.now() }),
       regenerateWeekly: () => set({ weeklySeed: Date.now() }),
-      
+
       // --- NEW V3 AI ACTIONS ---
       aiPlan: null,
       setAiPlan: (plan) => set({ aiPlan: plan }),
@@ -85,6 +86,6 @@ export const useApp = create<State>()(
     {
       name: "kerala-diet-planner",
       // Removing the explicit createJSONStorage here prevents the SSR crash!
-    }
-  )
+    },
+  ),
 );
