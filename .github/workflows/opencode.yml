@@ -1,4 +1,4 @@
-name: OpenCode Agent
+name: OpenCode
 
 on:
   issue_comment:
@@ -8,10 +8,10 @@ on:
     types: [created]
 
 permissions:
+  id-token: write
   contents: write
   pull-requests: write
   issues: write
-  id-token: write
 
 jobs:
   opencode:
@@ -31,6 +31,7 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         with:
-          model: ~deepseek/deepseek-v4-flash:free
+          model: qwen/qwen3-coder:free
+
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
