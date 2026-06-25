@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+
   "provider": {
     "openrouter": {
       "models": {
@@ -7,6 +8,7 @@
       }
     }
   },
-  "model": "openrouter/deepseek/deepseek-v4-flash:free",
-  "small_model": "openrouter/deepseek/deepseek-v4-flash:free"
+
+  "model": "~deepseek/deepseek-v4-flash:free",
+  "small_model": "~deepseek/deepseek-v4-flash:free"
 }
