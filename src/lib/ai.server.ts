@@ -1,14 +1,14 @@
 import { createServerFn } from "@tanstack/react-start";
-import { calcTargets } from "./recommend";
-import type { Profile } from "./store";
+import { calcTargets } from "@/lib/recommend";
+import type { Profile } from "@/lib/store";
 
+// Note: This MUST be saved exactly as "src/lib/ai.server.ts"
 export const generateAiPlanFn = createServerFn({ method: "POST" })
   .validator((data: { profile: Profile }) => data)
   .handler(async (ctx) => {
     const { profile } = ctx.data;
     const targets = calcTargets(profile);
 
-    // Fetch API key securely from server environment
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY is missing from environment variables.");
