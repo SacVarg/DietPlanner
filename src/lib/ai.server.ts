@@ -47,7 +47,7 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
 
     try {
       const response = await fetch(
-        `[https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=$](https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=$){apiKey}`,
+        "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=" + apiKey,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -73,7 +73,6 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
         throw new Error("Received empty response from AI.");
       }
 
-      // THE FIX: Safe regex formatting that won't crash the build tool
       const cleanText = text
         .replace(new RegExp("```json", "gi"), "")
         .replace(new RegExp("```", "g"), "")
