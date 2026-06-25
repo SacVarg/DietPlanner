@@ -3,9 +3,10 @@ import { useMemo } from "react";
 import { useApp, todayISO } from "@/lib/store";
 import { generateDailyPlan } from "@/lib/recommend";
 import { computeRecipeNutrition, type Recipe } from "@/lib/data/recipes";
+import { recommendTemplates } from "@/lib/data/templates";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Clock, Flame } from "lucide-react";
+import { RefreshCw, Clock, Flame, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/planner")({
@@ -19,8 +20,8 @@ function Planner() {
   const regen = useApp((s) => s.regenerateDaily);
   const addJournal = useApp((s) => s.addJournal);
   if (!profile) return <Navigate to="/profile" />;
-
   const plan = useMemo(() => generateDailyPlan(profile, seed), [profile, seed]);
+  const templates = useMemo(() => recommendTemplates(profile).slice(0, 3), [profile]);
 
   const log = (r: Recipe, meal: "breakfast" | "lunch" | "dinner") => {
     const n = computeRecipeNutrition(r);
@@ -80,6 +81,31 @@ function Planner() {
             );
           })}
         </div>
+
+        {templates.length > 0 && (
+          <section className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <h2 className="text-lg font-semibold">Meal templates for your goal</h2>
+            </div>
+            <div className="grid gap-3 md:grid-cols-3">
+              {templates.map((t) => (
+                <div key={t.id} className="card-surface p-4">
+                  <h3 className="font-semibold">{t.name}</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">{t.description}</p>
+                  <div className="mt-3 flex flex-wrap gap-1">
+                    {t.highlights.map((h) => (
+                      <span key={h} className="rounded-full bg-muted px-2 py-0.5 text-[10px] uppercase tracking-wide">{h}</span>
+                    ))}
+                  </div>
+                  <div className="mt-3 text-[11px] text-muted-foreground">
+                    Split: B {Math.round(t.split.breakfast * 100)}% · L {Math.round(t.split.lunch * 100)}% · D {Math.round(t.split.dinner * 100)}%{t.split.snack ? ` · S ${Math.round(t.split.snack * 100)}%` : ""}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </AppShell>
   );
