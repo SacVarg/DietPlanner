@@ -1,4 +1,4 @@
-name: OpenCode
+name: OpenCode Agent
 
 on:
   issue_comment:
@@ -15,19 +15,24 @@ permissions:
   pull-requests: write
   issues: write
 
+concurrency:
+  group: opencode-${{ github.event.issue.number || github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   opencode:
     if: |
       github.event.comment &&
       (
-        contains(github.event.comment.body, '/opencode') ||
-        contains(github.event.comment.body, '/oc')
+        contains(github.event.comment.body, '/oc') ||
+        contains(github.event.comment.body, '/opencode')
       )
 
     runs-on: ubuntu-latest
+    timeout-minutes: 60
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -35,8 +40,13 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         with:
-          model: openrouter/deepseek/deepseek-v4-flash:free
+          model: deepseek/deepseek-v4-flash:free
 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+
+          OPENROUTER_HTTP_REFERER: ${{ secrets.OPENROUTER_HTTP_REFERER }}
+
+          OPENROUTER_APP_NAME: ${{ secrets.OPENROUTER_APP_NAME }}
