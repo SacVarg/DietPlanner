@@ -20,8 +20,8 @@ function Planner() {
   const regen = useApp((s) => s.regenerateDaily);
   const addJournal = useApp((s) => s.addJournal);
   if (!profile) return <Navigate to="/profile" />;
-
   const plan = useMemo(() => generateDailyPlan(profile, seed), [profile, seed]);
+  const templates = useMemo(() => recommendTemplates(profile).slice(0, 3), [profile]);
 
   const log = (r: Recipe, meal: "breakfast" | "lunch" | "dinner") => {
     const n = computeRecipeNutrition(r);
