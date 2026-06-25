@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { CUISINE_LABELS } from "@/lib/data/cuisines";
+import type { CuisineId } from "@/lib/data/recipes";
 import { calcTargets } from "@/lib/recommend";
 import type { Profile } from "@/lib/store";
 
@@ -8,8 +10,16 @@ const getGeminiApiKey = () => {
 };
 
 export const generateAiPlanFn = createServerFn({ method: "POST" }).handler(async (ctx) => {
-  const { profile } = ctx.data as { profile: Profile };
+  const { profile, cuisine = "kerala" } = ctx.data as {
+    profile: Profile;
+    cuisine?: CuisineId | "all";
+  };
   const targets = calcTargets(profile);
+  const cuisineLabel = cuisine === "all" ? "mixed global cuisines" : CUISINE_LABELS[cuisine];
+  const cuisineRule =
+    cuisine === "all"
+      ? "Use dishes from any cuisine, but keep the plan cohesive and aligned with the user's profile."
+      : `Use ${cuisineLabel} dishes and flavor profiles only.`;
 
   // Safely checks standard process.env, Cloudflare globalThis, and Vite import.meta
   const apiKey = getGeminiApiKey();
@@ -19,8 +29,8 @@ export const generateAiPlanFn = createServerFn({ method: "POST" }).handler(async
   }
 
   const prompt = `
-      Act as an expert Kerala nutritionist. 
-      Create a 1-day traditional Kerala meal plan (Breakfast, Lunch, Dinner) for a user with the following profile:
+      Act as an expert nutritionist specializing in cuisine-aware meal planning. 
+      Create a 1-day ${cuisineLabel} meal plan (Breakfast, Lunch, Dinner) for a user with the following profile:
       - Goal: ${profile.goal}
       - Diet Type: ${profile.diet}
       - Budget Tier: ${profile.budget}
@@ -32,9 +42,10 @@ export const generateAiPlanFn = createServerFn({ method: "POST" }).handler(async
       - Fat: ${targets.fat}g
 
       Rules:
-      1. Use traditional Kerala dishes ONLY (e.g., Puttu, Kadala, Appam, Fish Curry, Kanji, Thoran).
+      1. ${cuisineRule}
       2. Strictly adhere to the diet type (${profile.diet}) and budget (${profile.budget}).
       3. Distribute macros sensibly across the three meals to hit the daily targets.
+      4. Use the localName field for a recognizable local, regional, or common alternate name. If there is no distinct local name, repeat the dish name.
       
       Provide the output ONLY as a raw JSON object matching EXACTLY this structure. Do not include markdown formatting or backticks:
       {

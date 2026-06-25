@@ -89,7 +89,7 @@ function Planner() {
   const handleGenerateAi = async () => {
     setIsGeneratingAi(true);
     try {
-      const result = await generateAiPlanFn({ data: { profile } });
+      const result = await generateAiPlanFn({ data: { profile, cuisine } });
       setAiPlan(result);
       toast.success("AI generated a perfect meal plan for you!");
     } catch (err) {
