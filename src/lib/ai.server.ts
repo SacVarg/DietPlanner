@@ -35,7 +35,7 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
       2. Strictly adhere to the diet type (${profile.diet}) and budget (${profile.budget}).
       3. Distribute macros sensibly across the three meals to hit the daily targets.
       
-      Provide the output ONLY as a raw JSON object matching EXACTLY this structure, with no markdown formatting or codeblocks around it:
+      Provide the output ONLY as a raw JSON object matching EXACTLY this structure. Do not include markdown formatting or backticks:
       {
         "plan": {
           "breakfast": { "name": "String", "localName": "String", "kcal": Number, "protein": Number, "carbs": Number, "fat": Number, "ingredients": [{"foodId": "String", "grams": Number}], "steps": ["String"] },
@@ -46,17 +46,14 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
     `;
 
     try {
-      // THE FIX: Updated to the stable v1 API and the 'latest' flash alias
+      // Removed the incompatible generationConfig completely
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+        `[https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=$](https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=$){apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              responseMimeType: "application/json",
-            },
+            contents: [{ parts: [{ text: prompt }] }]
           }),
         }
       );
@@ -77,7 +74,11 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
         throw new Error("Received empty response from AI.");
       }
 
-      const parsed = JSON.parse(text);
+      // Cleanup: Strip any markdown formatting (like ```json and ```) Gemini might return
+      const cleanText = text.replace(/```json/gi, '').replace(/
+```/g, '').trim();
+
+      const parsed = JSON.parse(cleanText);
       return parsed.plan;
 
     } catch (error) {
