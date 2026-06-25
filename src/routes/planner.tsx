@@ -76,9 +76,17 @@ function Planner() {
       const result = await generateAiPlanFn({ data: { profile } });
       setAiPlan(result);
       toast.success("AI generated a perfect Kerala meal plan for you!");
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error("Failed to generate AI plan. Check Cloudflare API key settings.");
+      
+      // THE FIX: Smart error handling for the UI Popup
+      const errorMessage = err?.message || "";
+      if (errorMessage.includes("503") || errorMessage.includes("demand")) {
+        toast.error("The AI server is currently overloaded with high demand. Please try again in a few minutes!");
+      } else {
+        toast.error("The AI server is temporarily unavailable. Please try again later.");
+      }
+      
     } finally {
       setIsGeneratingAi(false);
     }
