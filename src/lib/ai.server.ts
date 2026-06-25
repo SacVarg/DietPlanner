@@ -3,9 +3,9 @@ import { calcTargets } from "@/lib/recommend";
 import type { Profile } from "@/lib/store";
 
 export const generateAiPlanFn = createServerFn({ method: "POST" })
-  .validator((data: { profile: Profile }) => data)
   .handler(async (ctx) => {
-    const { profile } = ctx.data;
+    // We cast the data type directly here instead of using .validator()
+    const { profile } = ctx.data as { profile: Profile };
     const targets = calcTargets(profile);
 
     // Safely checks standard process.env, Cloudflare globalThis, and Vite import.meta
