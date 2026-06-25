@@ -3,9 +3,10 @@ import { useMemo } from "react";
 import { useApp, todayISO } from "@/lib/store";
 import { generateDailyPlan } from "@/lib/recommend";
 import { computeRecipeNutrition, type Recipe } from "@/lib/data/recipes";
+import { recommendTemplates } from "@/lib/data/templates";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Clock, Flame } from "lucide-react";
+import { RefreshCw, Clock, Flame, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/planner")({
