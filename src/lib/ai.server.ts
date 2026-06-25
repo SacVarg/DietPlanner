@@ -7,6 +7,7 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
     const { profile } = ctx.data as { profile: Profile };
     const targets = calcTargets(profile);
 
+    // Safely checks standard process.env, Cloudflare globalThis, and Vite import.meta
     const apiKey = 
       process.env.GEMINI_API_KEY || 
       (typeof globalThis !== 'undefined' && (globalThis as any).GEMINI_API_KEY) ||
@@ -45,8 +46,9 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
     `;
 
     try {
+      // THE FIX: Updated to the stable v1 API and the 'latest' flash alias
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -59,7 +61,6 @@ export const generateAiPlanFn = createServerFn({ method: "POST" })
         }
       );
 
-      // THIS IS THE CRITICAL CHANGE: Printing the exact error from Google
       if (!response.ok) {
         const errorText = await response.text();
         console.error("--- RAW GEMINI API ERROR ---");
