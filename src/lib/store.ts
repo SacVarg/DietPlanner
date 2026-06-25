@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 
+// Note: This MUST be saved exactly as "src/lib/store.ts"
 export type Profile = {
   name?: string;
   age: number;
@@ -16,7 +17,7 @@ export type Profile = {
 
 export type JournalEntry = {
   id: string;
-  date: string; // YYYY-MM-DD
+  date: string;
   meal: "breakfast" | "lunch" | "dinner" | "snack";
   recipeId?: string;
   customName?: string;
@@ -88,4 +89,3 @@ export const useApp = create<State>()(
     }
   )
 );
-
