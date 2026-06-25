@@ -53,9 +53,8 @@ export function filterRecipes(
   meal: Recipe["meal"][number],
   cuisine?: Recipe["cuisine"] | "all",
 ) {
-  return RECIPES.filter((r) => {
+  const matchesProfile = (r: Recipe) => {
     if (!r.meal.includes(meal)) return false;
-    if (cuisine && cuisine !== "all" && r.cuisine !== cuisine) return false;
     // diet
     if (p.diet === "vegetarian" && !r.diet.some((d) => d === "vegetarian" || d === "vegan"))
       return false;
@@ -69,7 +68,13 @@ export function filterRecipes(
     if (p.budget === "budget" && r.cost !== "budget") return false;
     if (p.budget === "moderate" && r.cost === "premium") return false;
     return true;
-  });
+  };
+
+  const mealPool = RECIPES.filter(matchesProfile);
+  if (!cuisine || cuisine === "all") return mealPool;
+
+  const cuisinePool = mealPool.filter((r) => r.cuisine === cuisine);
+  return cuisinePool.length ? cuisinePool : mealPool;
 }
 
 function seededRng(seed: number) {
