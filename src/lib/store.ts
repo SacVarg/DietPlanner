@@ -1,7 +1,6 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
-// Note: This MUST be saved exactly as "src/lib/store.ts"
 export type Profile = {
   name?: string;
   age: number;
@@ -85,7 +84,7 @@ export const useApp = create<State>()(
     }),
     {
       name: "kerala-diet-planner",
-      storage: createJSONStorage(() => localStorage),
+      // Removing the explicit createJSONStorage here prevents the SSR crash!
     }
   )
 );
