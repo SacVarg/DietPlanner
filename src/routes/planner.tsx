@@ -7,9 +7,10 @@ import { recommendTemplates } from "@/lib/data/templates";
 import { generateAiPlanFn } from "@/lib/ai.server";
 import { AppShell } from "@/components/app-shell";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Clock, Flame, Sparkles, Loader2, Bot } from "lucide-react";
+import { RefreshCw, Clock, Flame, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+// Note: This MUST be saved exactly as "src/routes/planner.tsx"
 export const Route = createFileRoute("/planner")({
   head: () => ({ meta: [{ title: "Daily Planner — Kerala Diet Planner" }] }),
   component: Planner,
@@ -110,7 +111,7 @@ function Planner() {
         {aiPlan && (
           <div className="flex items-center justify-between rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-800 dark:bg-indigo-950/30">
             <div className="flex items-center gap-2">
-              <Bot className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+              <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
               <span className="text-sm font-medium text-indigo-800 dark:text-indigo-300">
                 Custom AI Plan Active
               </span>
@@ -125,7 +126,7 @@ function Planner() {
           {(["breakfast", "lunch", "dinner"] as const).map((mealKey) => {
             
             // Render AI Meal
-            if (aiPlan) {
+            if (aiPlan && aiPlan[mealKey]) {
               const m = aiPlan[mealKey];
               return (
                 <div key={mealKey} className="card-surface relative flex flex-col p-5 border-indigo-100 dark:border-indigo-900 shadow-sm">
