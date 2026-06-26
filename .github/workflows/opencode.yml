@@ -31,7 +31,7 @@ jobs:
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         with:
-          model: openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
+          model: openrouter/google/gemma-4-31b-it:free
 
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
